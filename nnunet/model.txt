@@ -1,0 +1,228 @@
+NNUnet(
+  (model): UNet3D(
+    (input_block): InputBlock(
+      (conv1): Conv3d(5, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+      (conv2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+      (norm): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (relu): ReLU(inplace=True)
+    )
+    (downsamples): ModuleList(
+      (0): ConvBlock(
+        (conv1): ConvLayer(
+          (conv): Conv3d(64, 128, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+        (conv2): ConvLayer(
+          (conv): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (1): ConvBlock(
+        (conv1): ConvLayer(
+          (conv): Conv3d(128, 256, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+        (conv2): ConvLayer(
+          (conv): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (2): ConvBlock(
+        (conv1): ConvLayer(
+          (conv): Conv3d(256, 512, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+        (conv2): ConvLayer(
+          (conv): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (3): ConvBlock(
+        (conv1): ConvLayer(
+          (conv): Conv3d(512, 768, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+        (conv2): ConvLayer(
+          (conv): Conv3d(768, 768, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+      )
+    )
+    (bottleneck): ConvBlock(
+      (conv1): ConvLayer(
+        (conv): Conv3d(768, 1024, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+        (norm): InstanceNorm3d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+        (relu): ReLU(inplace=True)
+      )
+      (conv2): ConvLayer(
+        (conv): Conv3d(1024, 1024, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+        (norm): InstanceNorm3d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+        (relu): ReLU(inplace=True)
+      )
+    )
+    (input_block_interpolate): InputBlock(
+      (conv1): Conv3d(5, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+      (conv2): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+      (norm): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+      (relu): ReLU(inplace=True)
+    )
+    (downsamples_interpolate): ModuleList(
+      (0): ConvBlock(
+        (conv1): ConvLayer(
+          (conv): Conv3d(64, 128, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+        (conv2): ConvLayer(
+          (conv): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (1): ConvBlock(
+        (conv1): ConvLayer(
+          (conv): Conv3d(128, 256, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+        (conv2): ConvLayer(
+          (conv): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (2): ConvBlock(
+        (conv1): ConvLayer(
+          (conv): Conv3d(256, 512, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+        (conv2): ConvLayer(
+          (conv): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+      )
+      (3): ConvBlock(
+        (conv1): ConvLayer(
+          (conv): Conv3d(512, 768, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+        (conv2): ConvLayer(
+          (conv): Conv3d(768, 768, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+          (norm): InstanceNorm3d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+          (relu): ReLU(inplace=True)
+        )
+      )
+    )
+    (bottleneck_interpolate): ConvBlock(
+      (conv1): ConvLayer(
+        (conv): Conv3d(768, 1024, kernel_size=(3, 3, 3), stride=(2, 2, 2), padding=(1, 1, 1))
+        (norm): InstanceNorm3d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+        (relu): ReLU(inplace=True)
+      )
+      (conv2): ConvLayer(
+        (conv): Conv3d(1024, 1024, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+        (norm): InstanceNorm3d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+        (relu): ReLU(inplace=True)
+      )
+    )
+    (upsamples): ModuleList(
+      (0): UpsampleBlock(
+        (conv_block): ConvBlock(
+          (conv1): ConvLayer(
+            (conv): Conv3d(1792, 768, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(1792, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+          (conv2): ConvLayer(
+            (conv): Conv3d(768, 768, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+        )
+      )
+      (1): UpsampleBlock(
+        (conv_block): ConvBlock(
+          (conv1): ConvLayer(
+            (conv): Conv3d(1280, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(1280, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+          (conv2): ConvLayer(
+            (conv): Conv3d(512, 512, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+        )
+      )
+      (2): UpsampleBlock(
+        (conv_block): ConvBlock(
+          (conv1): ConvLayer(
+            (conv): Conv3d(768, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(768, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+          (conv2): ConvLayer(
+            (conv): Conv3d(256, 256, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+        )
+      )
+      (3): UpsampleBlock(
+        (conv_block): ConvBlock(
+          (conv1): ConvLayer(
+            (conv): Conv3d(384, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(384, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+          (conv2): ConvLayer(
+            (conv): Conv3d(128, 128, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+        )
+      )
+      (4): UpsampleBlock(
+        (conv_block): ConvBlock(
+          (conv1): ConvLayer(
+            (conv): Conv3d(192, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(192, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+          (conv2): ConvLayer(
+            (conv): Conv3d(64, 64, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1))
+            (norm): InstanceNorm3d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=False)
+            (relu): ReLU(inplace=True)
+          )
+        )
+      )
+    )
+    (output_block): OutputBlock(
+      (conv): Conv3d(64, 3, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+    )
+    (deep_supervision_heads): ModuleList(
+      (0): OutputBlock(
+        (conv): Conv3d(128, 3, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+      )
+      (1): OutputBlock(
+        (conv): Conv3d(256, 3, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+      )
+    )
+  )
+  (loss): LossBraTS(
+    (dice): DiceLoss()
+    (ce): BCEWithLogitsLoss()
+  )
+  (dice): Dice()
+)
