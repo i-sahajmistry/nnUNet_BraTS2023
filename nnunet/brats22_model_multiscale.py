@@ -151,7 +151,7 @@ class UNet3D(nn.Module):
         self.deep_supervision = True
         self.norm = "instancenorm3d"
         self.filters = [64, 128, 256, 512, 768, 1024, 2048][: len(strides)]
-
+ 
         down_block = ConvBlock
         self.input_block = InputBlock(5, self.filters[0], norm=self.norm)
         self.downsamples = self.get_module_list(
@@ -160,10 +160,26 @@ class UNet3D(nn.Module):
             out_channels=self.filters[1:],
             kernels=kernels[1:-1],
             strides=strides[1:-1],
-            conv_type="OD"
-
+            # conv_type="OD"
         )
         self.bottleneck = self.get_conv_block(
+            conv_block=down_block,
+            in_channels=self.filters[-2],
+            out_channels=self.filters[-1],
+            kernel_size=kernels[-1],
+            stride=strides[-1],
+            # conv_type="OD"
+        )
+        self.input_block_interpolate = InputBlock(5, self.filters[0], norm=self.norm)
+        self.downsamples_interpolate = self.get_module_list(
+            conv_block=down_block,
+            in_channels=self.filters[:-1],
+            out_channels=self.filters[1:],
+            kernels=kernels[1:-1],
+            strides=strides[1:-1],
+            # conv_type="OD"
+        )
+        self.bottleneck_interpolate = self.get_conv_block(
             conv_block=down_block,
             in_channels=self.filters[-2],
             out_channels=self.filters[-1],
@@ -177,31 +193,62 @@ class UNet3D(nn.Module):
             out_channels=self.filters[:-1][::-1],
             kernels=kernels[1:][::-1],
             strides=strides[1:][::-1],
-            # conv_type="OD"
         )
         self.output_block = self.get_output_block(decoder_level=0)
         self.deep_supervision_heads = self.get_deep_supervision_heads()
         self.apply(self.initialize_weights)
 
-    def forward(self, input_data):
-        out = self.input_block(input_data)
+    def cross_attention(self, out, out_inp):
+        pad = torch.zeros(out_inp.shape, device=0)
+        pad[:, :, :out.shape[-3], :out.shape[-2], :out.shape[-1]] = out
+        out = pad
+
+        MHA_output = torch.zeros(out.shape).cuda()
+        multihead_attn = nn.MultiheadAttention(out.shape[2]*out.shape[3]*out.shape[4], 8, 0.1, device=0)
+
+        for i in range(out.shape[0]):
+            attn_output, _ = multihead_attn(out[i].reshape(out.shape[1], out.shape[2]*out.shape[3]*out.shape[4]),
+                                            out[i].reshape(out.shape[1], out.shape[2]*out.shape[3]*out.shape[4]),
+                                            out_inp[i].reshape(out_inp.shape[1], out_inp.shape[2]*out_inp.shape[3]*out_inp.shape[4]))
+            MHA_output[i] = attn_output.reshape(out.shape[1], out.shape[2], out.shape[3], out.shape[4])
+
+        return MHA_output[:, :, :out.shape[-3], :out.shape[-2], :out.shape[-1]], MHA_output
+
+    def forward(self, input_data):      #(128, 128, 128)
+        input_big   = input_data
+        input_small = F.interpolate(input_data, size=(64, 64, 64), mode='trilinear', align_corners=False)
+        
+        out = self.input_block(input_small)
+        out_inp = self.input_block_interpolate(input_big)
+
         encoder_outputs = [out]
-        for downsample in self.downsamples:
-            out = downsample(out)
+        encoder_outputs_inp = [out_inp]
+        for i, (downsample, downsample_inp) in enumerate(zip(self.downsamples, self.downsamples_interpolate)):
+            out, out_inp = downsample(out), downsample_inp(out_inp)
             encoder_outputs.append(out)
+            encoder_outputs_inp.append(out_inp)
         out = self.bottleneck(out)
+        out_inp = self.bottleneck_interpolate(out_inp)
+        
+        
+        out, out_inp = self.cross_attention(out, out_inp)
+        # out = MHA_output[:, :, :input_small.shape[-3], :input_small.shape[-2], :input_small.shape[-1]]
+        # out = MHA_output
+
         decoder_outputs = []
-        for upsample, skip in zip(self.upsamples, reversed(encoder_outputs)):
+        for upsample, skip in zip(self.upsamples, reversed(encoder_outputs_inp)):
             out = upsample(out, skip)
             decoder_outputs.append(out)
         out = self.output_block(out)
+
         if self.training and self.deep_supervision:
             out = [out]
             for i, decoder_out in enumerate(decoder_outputs[-3:-1][::-1]):
                 out.append(self.deep_supervision_heads[i](decoder_out))
         return out
 
-    def get_conv_block(self, conv_block, in_channels, out_channels, kernel_size, stride, drop_block=False):
+    def get_conv_block(self, conv_block, in_channels, out_channels, kernel_size, stride, drop_block=False, conv_type=""):
+        # print("####################################", conv_type)
         return conv_block(
             dim=self.dim,
             stride=stride,
@@ -209,6 +256,7 @@ class UNet3D(nn.Module):
             kernel_size=kernel_size,
             in_channels=in_channels,
             out_channels=out_channels,
+            conv_type=conv_type
         )
 
     def get_output_block(self, decoder_level):
@@ -217,12 +265,26 @@ class UNet3D(nn.Module):
     def get_deep_supervision_heads(self):
         return nn.ModuleList([self.get_output_block(1), self.get_output_block(2)])
 
-    def get_module_list(self, in_channels, out_channels, kernels, strides, conv_block):
+    def get_module_list(self, in_channels, out_channels, kernels, strides, conv_block, conv_type=""):
         layers = []
+        # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", conv_type)
         for in_channel, out_channel, kernel, stride in zip(in_channels, out_channels, kernels, strides):
-            conv_layer = self.get_conv_block(conv_block, in_channel, out_channel, kernel, stride)
+            conv_layer = self.get_conv_block(conv_block, in_channel, out_channel, kernel, stride, False, conv_type)
             layers.append(conv_layer)
         return nn.ModuleList(layers)
+
+    def initialize_weights(self, module):
+        name = module.__class__.__name__.lower()
+        if name in ["conv2d", "conv3d"]:
+            nn.init.kaiming_normal_(module.weight)
+        if hasattr(module, "bias") and module.bias is not None:
+            nn.init.constant_(module.bias, 0)
+
+    def get_output_block(self, decoder_level):
+        return OutputBlock(in_channels=self.filters[decoder_level], out_channels=self.n_class, dim=self.dim)
+
+    def get_deep_supervision_heads(self):
+        return nn.ModuleList([self.get_output_block(1), self.get_output_block(2)])
 
     def initialize_weights(self, module):
         name = module.__class__.__name__.lower()

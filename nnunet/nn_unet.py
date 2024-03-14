@@ -22,8 +22,10 @@ from apex.optimizers import FusedAdam, FusedSGD
 from data_loading.data_module import get_data_path, get_test_fnames
 from monai.inferers import sliding_window_inference
 from monai.networks.nets import DynUNet
-from nnunet.brats22_model import UNet3D
+from nnunet.brats22_model_multiscale_odconv import UNet3D as UNet3D_multiscale_odconv
+from nnunet.brats22_model_multiscale import UNet3D as UNet3D_multiscale
 from nnunet.brats22_model_odconv import UNet3D as UNet3D_odconv
+from nnunet.brats22_model import UNet3D as UNet3D
 from nnunet.loss import Loss, LossBraTS
 from nnunet.metrics import Dice
 from pytorch_lightning.utilities import rank_zero_only
@@ -180,8 +182,16 @@ class NNUnet(pl.LightningModule):
             out_channels = 3
 
         if self.args.brats22_model:
-            if self.args.odconv: self.model = UNet3D_odconv(kernels, strides)
-            else: self.model = UNet3D(kernels, strides)
+            if self.args.odconv: 
+                if self.args.multiscale:
+                    self.model = UNet3D_multiscale_odconv(kernels, strides)
+                else:
+                    self.model = UNet3D_odconv(kernels, strides)
+            else: 
+                if self.args.multiscale:
+                    self.model = UNet3D_multiscale(kernels, strides)
+                else:
+                    self.model = UNet3D(kernels, strides)
         else:
             self.model = DynUNet(
                 self.args.dim,
