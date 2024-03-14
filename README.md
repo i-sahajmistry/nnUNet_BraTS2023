@@ -1,10 +1,3 @@
-# nnU-Net For PyTorch
-
-This repository is a clone of [this repository](https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/Segmentation/nnUNet) and provides a script and recipe to train the nnU-Net model with the modification given in the paper: **Multiscale Encoder and Omni-Dimensional Dynamic Convolution Enrichment in nnU-Net for Brain Tumor Segmentation**(link to be updated).
-
-> More info coming soon. 
-> For training and evaluation purposes, see the notebooks folder.
-
 # **nnU-Net For PyTorch** ([Original implementation](https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/Segmentation/nnUNet))  <!-- omit in toc -->
 
 >#### [Multiscale Encoder and Omni-Dimensional Dynamic Convolution Enrichment in nnU-Net for Brain Tumor Segmentation](https://github.com/i-sahajmistry/nnUNet_BraTS2023.git) (To Be Updated!)
@@ -55,7 +48,11 @@ For deep supervision, we used two additional output heads at the decoder levels 
 
 Figure 1: *The final U-Net architecture used for BraTS21 challenge.*
 
-# Training <a name="training"></a>
+## **Environment**
+
+You can directly use the dockerfile to run the code or use the requirements.txt to install the required dependencies.
+
+## **Training** 
 
 Now, let's start training the model. For that, we will call the training script from our nnUNet repo with some additional command line arguments for BraTS challenge: 
 
@@ -82,6 +79,7 @@ and the regular command line arguments:
 ```cmd 
 python ../main.py --brats --deep_supervision --depth 6 --filters 64 96 128 192 256 384 512 --min_fmap 2 --scheduler --learning_rate 0.0003 --epochs 30 --fold 0 --amp --gpus 1 --task 11 --save_ckpt
 ```
+> For detailed information about dataset preparation and training see these [notebooks](https://github.com/i-sahajmistry/nnUNet_BraTS2023/tree/master/notebooks).
 
 ## **Results**
 Scores of modified nnU-Net on testing datasets in Brats 2023 Challenge:
